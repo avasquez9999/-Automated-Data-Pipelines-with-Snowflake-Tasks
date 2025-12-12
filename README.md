@@ -52,6 +52,8 @@ FROM (
         t.$1:weather[0]:main
     FROM @DEMO.DEMO_SCHEMA.weather_stage t
 );
+
+
 #B. Child Dependent Task – BIKETASK
 
 This task executes only after WEATHERTASK succeeds, forming a two-step pipeline.
@@ -60,6 +62,7 @@ This task executes only after WEATHERTASK succeeds, forming a two-step pipeline.
 Component	Purpose
 AFTER	Defines parent–child dependency
 t.$1, t.$2...	Positional references for CSV files
+
 CREATE TASK DEMO.DEMO_SCHEMA.BIKETASK
   WAREHOUSE = COMPUTE_WH
   AFTER DEMO.DEMO_SCHEMA.WEATHERTASK
