@@ -52,3 +52,95 @@ FROM (
         t.$1:weather[0]:main
     FROM @DEMO.DEMO_SCHEMA.weather_stage t
 );
+#B. Child Dependent Task – BIKETASK
+
+This task executes only after WEATHERTASK succeeds, forming a two-step pipeline.
+
+###Key Components
+Component	Purpose
+AFTER	Defines parent–child dependency
+t.$1, t.$2...	Positional references for CSV files
+CREATE TASK DEMO.DEMO_SCHEMA.BIKETASK
+  WAREHOUSE = COMPUTE_WH
+  AFTER DEMO.DEMO_SCHEMA.WEATHERTASK
+AS
+COPY INTO DEMO.DEMO_SCHEMA.BIKE
+FROM (
+    SELECT
+        t.$1,
+        t.$2,
+        t.$3,
+        t.$4,
+        t.$5,
+        t.$6,
+        t.$7,
+        t.$8,
+        t.$9,
+        t.$10,
+        t.$11,
+        t.$12,
+        t.$13
+    FROM @DEMO_SCHEMA.BIKE_STAGE t
+);
+#⚙️ Task Management Commands
+
+Use these commands to control and monitor your pipeline.
+
+###Action	Command	Description
+Resume Task	ALTER TASK DEMO.DEMO_SCHEMA.BIKETASK RESUME;	Reactivates a suspended task
+Show All Tasks	SHOW TASKS;	Lists tasks and their status
+Manual Trigger	EXECUTE TASK DEMO.DEMO_SCHEMA.WEATHERTASK;	Immediately runs the task
+View History	SELECT * FROM TABLE(INFORMATION_SCHEMA.TASK_HISTORY()) ORDER BY SCHEDULED_TIME;	Shows execution history
+
+#📂 Repository Structure
+/sql
+  ├── weather_task.sql
+  ├── bike_task.sql
+  └── task_management.sql
+
+/diagrams
+  └── pipeline_dag.mmd
+
+README.md
+
+#📘 Prerequisites
+
+Snowflake Account
+
+Appropriate roles (e.g., SYSADMIN, ACCOUNTADMIN)
+
+Warehouse (COMPUTE_WH)
+
+Stages:
+
+@weather_stage
+
+@BIKE_STAGE
+
+#🔄 Pipeline Execution Flow
+
+Snowflake triggers WEATHERTASK based on its CRON schedule
+
+If successful, Snowflake automatically triggers BIKETASK
+
+Both tasks record execution history
+
+Pipeline continues daily without manual intervention
+
+#📈 Future Enhancements
+
+Add error notification via Snowflake Alerts
+
+Add more task layers (3+ step DAG)
+
+Add dbt integration
+
+Add S3 to Snowflake ETL patterns
+
+#📞 Contact
+
+If you'd like help extending this pipeline or automating more Snowflake workflows, feel free to reach out.
+
+
+---
+
